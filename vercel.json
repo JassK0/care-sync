@@ -1,34 +1,6 @@
 {
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/.next",
-  "devCommand": "cd frontend && npm run dev",
   "installCommand": "npm run install:all",
-  "framework": null,
-  "functions": {
-    "api/**/*.py": {
-      "runtime": "python3.9"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/health",
-      "destination": "/api/health.py"
-    },
-    {
-      "source": "/api/notes/:path*",
-      "destination": "/api/notes.py"
-    },
-    {
-      "source": "/api/patients/:path*",
-      "destination": "/api/patients.py"
-    },
-    {
-      "source": "/api/alerts/:path*",
-      "destination": "/api/alerts.py"
-    },
-    {
-      "source": "/api/summaries/:path*",
-      "destination": "/api/summaries.py"
-    }
-  ]
+  "devCommand": "cd frontend && npm run dev"
 }

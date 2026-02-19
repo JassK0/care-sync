@@ -5,9 +5,10 @@
 
 // Get API URL from environment variable or use default
 // For Vercel serverless, use relative URLs (same origin)
+// This works both locally (with vercel dev) and in production
 const getApiUrl = () => {
   // Use relative URLs for Vercel serverless functions
-  // This works both locally (with vercel dev) and in production
+  // vercel dev serves both frontend and API on the same origin
   if (typeof window !== 'undefined') {
     // Browser: use relative URL (same origin)
     return ''

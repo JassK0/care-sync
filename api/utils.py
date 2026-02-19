@@ -12,12 +12,35 @@ def get_data_path():
     return Path(__file__).parent.parent / "data"
 
 def load_notes() -> List[Dict[str, Any]]:
-    """Load notes from JSON file."""
+    """Load notes from JSON file and flatten the structure."""
     notes_file = get_data_path() / "synthetic_notes.json"
     if not notes_file.exists():
         return []
     with open(notes_file, "r") as f:
-        return json.load(f)
+        data = json.load(f)
+    
+    # Handle nested structure: { "patients": [ { "patient_id": "...", "notes": [...] } ] }
+    if isinstance(data, dict) and "patients" in data:
+        flattened_notes = []
+        for patient in data.get("patients", []):
+            patient_id = patient.get("patient_id", "")
+            patient_name = patient.get("patient_name", "")
+            mrn = patient.get("mrn", "")
+            
+            # Add patient info to each note
+            for note in patient.get("notes", []):
+                note["patient_id"] = patient_id
+                note["patient_name"] = patient_name
+                note["mrn"] = mrn
+                flattened_notes.append(note)
+        return flattened_notes
+    
+    # Handle flat structure: [ { "note_id": "...", ... } ]
+    if isinstance(data, list):
+        return data
+    
+    # Fallback: return empty list
+    return []
 
 def json_response(data: Any, status_code: int = 200) -> Dict[str, Any]:
     """Create a JSON response for Vercel."""

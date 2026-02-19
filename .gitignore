@@ -40,3 +40,4 @@ logs/
 .coverage
 .pytest_cache/
 .nyc_output
+.vercel
