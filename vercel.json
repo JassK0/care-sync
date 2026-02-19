@@ -1,5 +1,5 @@
 {
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/.next",
-  "installCommand": "python -m pip install -r requirements.txt && cd frontend && npm install"
+  "installCommand": "cd frontend && npm install"
 }
