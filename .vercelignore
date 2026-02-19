@@ -3,5 +3,3 @@ node_modules/
 .next/
 .env.local
 *.log
-main.py
-requirements.txt

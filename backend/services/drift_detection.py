@@ -15,10 +15,10 @@ from pathlib import Path
 
 # Load .env.local for OpenAI API key
 possible_paths = [
-    Path(__file__).parent.parent.parent / ".env.local",  # From api/services/
-    Path(__file__).parent.parent / ".env.local",  # From api/
-    Path.cwd() / ".env.local",  # Current working directory
-    Path.cwd().parent / ".env.local",  # Parent of current directory
+    Path(__file__).parent.parent.parent / ".env.local",
+    Path(__file__).parent.parent / ".env.local",
+    Path.cwd() / ".env.local",
+    Path.cwd().parent / ".env.local",
 ]
 
 env_loaded = False
@@ -54,15 +54,6 @@ class DriftDetectionService:
         
         self.client = OpenAI(api_key=api_key, timeout=30.0)
         self.model = "gpt-4o-mini"
-        
-        # Load time window from environment (default to 12 hours if not set)
-        time_window_str = os.getenv("DRIFT_TIME_WINDOW_HOURS", "12")
-        try:
-            self.time_window_hours = int(time_window_str.strip())
-            print(f"Using drift time window: {self.time_window_hours} hours")
-        except ValueError:
-            print(f"Warning: Invalid DRIFT_TIME_WINDOW_HOURS value '{time_window_str}', using default 12 hours")
-            self.time_window_hours = 12
         
         # Rule-based structure (deterministic)
         self.drift_rules = {
@@ -166,8 +157,8 @@ class DriftDetectionService:
                     if role1 == role2:
                         continue
                     
-                    # Check if within configured time window
-                    if not self._within_time_window(note1, note2, hours=self.time_window_hours):
+                    # Check if within reasonable time window (48 hours)
+                    if not self._within_time_window(note1, note2, hours=48):
                         continue
                     
                     # Get facts for these notes
@@ -258,8 +249,8 @@ class DriftDetectionService:
                     if role1 in ["MD", "DO", "NP", "PA"] and role2 in ["MD", "DO", "NP", "PA"]:
                         continue
                     
-                    # Check if within configured time window
-                    if not self._within_time_window(item1["note"], item2["note"], hours=self.time_window_hours):
+                    # Check if within 24 hours
+                    if not self._within_time_window(item1["note"], item2["note"], hours=24):
                         continue
                     
                     # Use LLM to check if these represent the same concern
@@ -274,7 +265,7 @@ class DriftDetectionService:
                         md_acknowledged = False
                         for md_item in concern_facts:
                             if md_item["role"] in ["MD", "DO", "NP", "PA"]:
-                                if self._within_time_window(item1["note"], md_item["note"], hours=self.time_window_hours):
+                                if self._within_time_window(item1["note"], md_item["note"], hours=24):
                                     # Use LLM to check if MD acknowledged the concern
                                     if self._llm_check_acknowledgement(item1["fact"], md_item["fact"]):
                                         md_acknowledged = True
