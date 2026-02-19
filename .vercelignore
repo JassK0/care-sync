@@ -8,3 +8,5 @@ __pycache__
 venv
 .env
 server.py
+requirements.txt
+main.py

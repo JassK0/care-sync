@@ -4,19 +4,11 @@
  */
 
 // Get API URL from environment variable or use default
-// For local dev: use http://localhost:8000
-// For Vercel: use relative URLs (same origin)
+// For Vercel: always use relative URLs (same origin)
+// This works both locally (with vercel dev) and in production
 const getApiUrl = () => {
-  if (typeof window !== 'undefined') {
-    // Browser: check if we're in development
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      return 'http://localhost:8000'
-    }
-    // Production: use relative URL (same origin)
-    return ''
-  }
-  // Server-side: use env var or default to localhost for dev
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+  // Always use relative URLs - Vercel serverless functions are on same origin
+  return ''
 }
 
 export const API_URL = getApiUrl()
