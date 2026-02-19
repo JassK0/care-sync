@@ -4,3 +4,4 @@ node_modules/
 .env.local
 *.log
 requirements.txt
+!api/requirements.txt
