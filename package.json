@@ -1,0 +1,24 @@
+{
+  "name": "care-sync",
+  "version": "1.0.0",
+  "description": "Clinical Narrative Drift Detector - Enterprise AI Hackathon MVP",
+  "scripts": {
+    "dev": "./start-dev.sh",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "install:backend": "pip3 install -r requirements.txt",
+    "install:frontend": "cd frontend && npm install",
+    "kill:port": "./kill-port.sh"
+  },
+  "keywords": [
+    "healthcare",
+    "ai",
+    "clinical-notes",
+    "drift-detection"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
