@@ -3,5 +3,4 @@ node_modules/
 .next/
 .env.local
 *.log
-requirements.txt
-!api/requirements.txt
+/requirements.txt
