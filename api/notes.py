@@ -3,6 +3,12 @@ Notes API - Vercel serverless function
 """
 
 import json
+import sys
+from pathlib import Path
+
+# Add api directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent))
+
 from utils import load_notes, json_response, error_response, parse_request_body
 
 def handler(request):
