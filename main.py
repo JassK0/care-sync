@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 
-app = FastAPI(title="CareSync API")
+app = FastAPI()
 
-@app.get("/api/health")
-def health():
+@app.get("/")
+def root():
     return {"ok": True}
+
+@app.get("/health")
+def health():
+    return {"health": "ok"}
