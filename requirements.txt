@@ -1,11 +1,14 @@
-# Care Sync - Backend Dependencies
-# Install with: pip3 install -r requirements.txt
-# Or from backend directory: pip3 install -r backend/requirements.txt
+# Care Sync - Root requirements.txt
+# NOTE: This file is for local development only
+# Vercel uses api/requirements.txt for serverless functions
+# 
+# For local development, install with: pip3 install -r requirements.txt
+# This includes FastAPI/uvicorn for local testing (not used in Vercel)
 
-# FastAPI web framework
+# FastAPI web framework (for local dev only, not used in Vercel)
 fastapi==0.104.1
 
-# ASGI server for FastAPI
+# ASGI server for FastAPI (for local dev only, not used in Vercel)
 uvicorn[standard]==0.24.0
 
 # Data validation using Python type annotations
