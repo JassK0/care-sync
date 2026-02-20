@@ -1,301 +1,119 @@
 {
   "patients": [
     {
-      "patient_id": "P-001",
-      "patient_name": "John Doe",
-      "mrn": "MRN-458219",
-      "admission_date": "2026-02-16",
-      "diagnosis": "Hypoxia with community-acquired pneumonia vs pulmonary embolism (workup ongoing)",
+      "patient_id": "DX-401",
+      "patient_name": "Marcus Lee",
+      "mrn": "MRN-904112",
+      "admission_date": "2026-02-22",
+      "diagnosis": "Acute hypoxic respiratory failure due to community-acquired pneumonia",
       "notes": [
         {
-          "note_id": "P-001-n-001",
-          "timestamp": "2026-02-16T08:12",
-          "author_role": "MD",
-          "note_text": "ED: 50M with 3 days cough, fever, pleuritic chest pain. SpO2 90% RA. CXR with RLL opacity. Impression CAP. Started ceftriaxone/azithro, IVF. Admit medicine. Low suspicion for PE at this time."
+          "note_id": "DX-401-n-001",
+          "timestamp": "2026-02-22T06:18:00",
+          "author_role": "ED_MD",
+          "note_text": "ED Provider Note: 46M with 4 days fever, productive cough, pleuritic chest pain. SpO2 89% on room air, RR 26. CXR: LLL consolidation. Started ceftriaxone + azithromycin. O2 via NC started, goal SpO2 > 92%. Admit to medicine."
         },
         {
-          "note_id": "P-001-n-002",
-          "timestamp": "2026-02-16T12:09",
+          "note_id": "DX-401-n-002",
+          "timestamp": "2026-02-22T08:05:00",
           "author_role": "RN",
-          "note_text": "Admit to 5W. AOx4. O2 2L NC. Reports sharp pain with deep breath and coughing. States concerned about 'blood clot.' Resting SpO2 94% on 2L."
+          "note_text": "RN Admit Note: Arrived to 4E. On 4L NC, SpO2 93-94% at rest. Reports 7/10 pleuritic pain with deep breath. Dyspneic with talking. Encouraged IS use. MD notified of oxygen requirement on arrival."
         },
         {
-          "note_id": "P-001-n-003",
-          "timestamp": "2026-02-17T02:41",
-          "author_role": "RN",
-          "note_text": "Overnight: HR up to 118 with ambulation to bathroom. Increased dyspnea noted. O2 increased from 2L to 4L NC per protocol to keep SpO2 > 92%. MD notified via secure message."
+          "note_id": "DX-401-n-003",
+          "timestamp": "2026-02-22T10:32:00",
+          "author_role": "HOSPITALIST_MD",
+          "note_text": "Medicine Progress Note: CAP with improving respiratory status. On 2L NC per chart, SpO2 95%. Denies chest pain currently. Continue ceftriaxone/azithro, wean O2 as tolerated. If remains stable, anticipate discharge tomorrow."
         },
         {
-          "note_id": "P-001-n-004",
-          "timestamp": "2026-02-17T03:01",
-          "author_role": "MD",
-          "note_text": "Cross-cover: Called for tachycardia and increased O2 requirement. Chart reviewed, admitted for pneumonia. Continue current antibiotics and O2 titration. Reassess with day team."
-        },
-        {
-          "note_id": "P-001-n-005",
-          "timestamp": "2026-02-17T07:20",
-          "author_role": "MD",
-          "note_text": "Progress: Reports feels somewhat improved. Denies chest pain currently. On 2L NC per chart (plan: wean O2 as tolerated). Continue ceftriaxone/azithro."
-        },
-        {
-          "note_id": "P-001-n-006",
-          "timestamp": "2026-02-17T10:16",
-          "author_role": "PT",
-          "note_text": "PT eval: With minimal exertion, SpO2 dropped to 86% on 3L NC. Required rest breaks and return to bed. Patient endorses dyspnea and pleuritic discomfort with activity."
-        },
-        {
-          "note_id": "P-001-n-007",
-          "timestamp": "2026-02-17T13:05",
-          "author_role": "MD",
-          "note_text": "Pulm consult: Persistent exertional hypoxia and pleuritic symptoms despite CAP treatment. Recommend CTA chest (PE protocol) to rule out PE. Continue supportive care."
-        },
-        {
-          "note_id": "P-001-n-008",
-          "timestamp": "2026-02-17T18:22",
-          "author_role": "RN",
-          "note_text": "Patient upset/confused about plan. States was told 'just pneumonia' but now hearing 'CT for clot.' O2 remains 4L NC. Resting SpO2 92-93%. Provided reassurance, MD aware."
-        },
-
-        {
-          "note_id": "P-001-n-009",
-          "timestamp": "2026-02-18T07:05",
-          "author_role": "MD",
-          "note_text": "Progress: Breathing improved. On room air per overnight report. Denies chest pain. Plan discharge later today if ambulates without desaturation."
-        },
-        {
-          "note_id": "P-001-n-010",
-          "timestamp": "2026-02-18T07:32",
-          "author_role": "RN",
-          "note_text": "Morning: Patient currently on 4L NC, unable to tolerate wean overnight. Desaturated to 87% when O2 decreased to 2L. Noted increased work of breathing with repositioning. Patient states, 'they keep saying I'm better but I'm not.'"
-        },
-        {
-          "note_id": "P-001-n-011",
-          "timestamp": "2026-02-18T08:10",
+          "note_id": "DX-401-n-004",
+          "timestamp": "2026-02-22T12:14:00",
           "author_role": "RT",
-          "note_text": "RT reassessment: SpO2 92% on 4L NC. Mild increased WOB. Patient desats with exertion per nursing. Recommended maintain current O2 and reassess after activity."
+          "note_text": "RT Assessment: Patient on 4L NC. Resting SpO2 92%. With brief ambulation, SpO2 dropped to 86% and recovered to 92% on 4L after rest. Recommend maintain 4L NC for now and reassess after next neb treatment."
         },
         {
-          "note_id": "P-001-n-012",
-          "timestamp": "2026-02-18T11:44",
-          "author_role": "MD",
-          "note_text": "Progress addendum: Patient stable, oxygen needs minimal. No evidence of respiratory distress on exam. Continue wean O2 and proceed with discharge planning."
+          "note_id": "DX-401-n-005",
+          "timestamp": "2026-02-22T15:48:00",
+          "author_role": "RN",
+          "note_text": "RN Shift Note: Patient remains on 4L NC. Desaturated to 87% when attempting to wean to 2L per earlier plan. Increased work of breathing noted with repositioning. Patient states, \"They told me I'm better but I still can't breathe when I move.\" MD paged."
         }
       ]
     },
     {
-      "patient_id": "P-002",
-      "patient_name": "Maria Garcia",
-      "mrn": "MRN-673904",
-      "admission_date": "2026-02-17",
-      "diagnosis": "Acute decompensated heart failure (HFrEF) with volume overload; discharge readiness disputed by patient/family",
+      "patient_id": "DX-402",
+      "patient_name": "Priya Nair",
+      "mrn": "MRN-331507",
+      "admission_date": "2026-02-22",
+      "diagnosis": "Acute uncomplicated pyelonephritis",
       "notes": [
         {
-          "note_id": "P-002-n-001",
-          "timestamp": "2026-02-17T09:04",
-          "author_role": "MD",
-          "note_text": "Admit H&P: 67F with SOB, orthopnea, LE edema. BNP elevated. CXR congestion. Start IV diuresis. Strict I/O, daily weights. Goal net negative 1-2L/day."
+          "note_id": "DX-402-n-001",
+          "timestamp": "2026-02-22T09:12:00",
+          "author_role": "ED_MD",
+          "note_text": "ED Provider Note: 29F with 2 days fever/chills, dysuria, right flank pain. Vitals: HR 112, BP 118/72, T 38.2C. UA positive nitrites/leuk est. Given IV fluids and ceftriaxone. Plan admit for IV antibiotics and monitoring."
         },
         {
-          "note_id": "P-002-n-002",
-          "timestamp": "2026-02-17T12:44",
+          "note_id": "DX-402-n-002",
+          "timestamp": "2026-02-22T11:05:00",
           "author_role": "RN",
-          "note_text": "Patient reports 'still can't breathe lying flat.' Orthopnea persists, using 3 pillows. Crackles bilat bases. Output 600 mL since diuretic dose. Family at bedside asks if she is 'going home today.'"
+          "note_text": "RN Admit Note: Pain improved after meds, now 3/10. Afebrile on arrival. Tolerating PO fluids. No nausea/vomiting. Continue IV antibiotics as ordered."
         },
         {
-          "note_id": "P-002-n-003",
-          "timestamp": "2026-02-17T16:10",
-          "author_role": "MD",
-          "note_text": "Progress: Responding to diuresis, down 1.8 kg. Breathing improved. Plan transition to PO diuretics tomorrow, anticipate discharge in 24-48h if stable."
+          "note_id": "DX-402-n-003",
+          "timestamp": "2026-02-22T16:22:00",
+          "author_role": "HOSPITALIST_MD",
+          "note_text": "Medicine Progress Note: Pyelo improving with treatment. Afebrile, HR down to 92. Flank pain improved. Continue IV ceftriaxone today, transition to PO antibiotics tomorrow if stable. Encourage oral intake."
         },
         {
-          "note_id": "P-002-n-004",
-          "timestamp": "2026-02-17T19:27",
+          "note_id": "DX-402-n-004",
+          "timestamp": "2026-02-22T19:40:00",
           "author_role": "RN",
-          "note_text": "Evening: Patient dyspneic walking to bathroom, requires frequent rests. SpO2 94% RA at rest, 90-91% with exertion. States 'doctor said I'm better but I don't feel ready.'"
-        },
-        {
-          "note_id": "P-002-n-005",
-          "timestamp": "2026-02-18T08:02",
-          "author_role": "MD",
-          "note_text": "Progress: Volume status improved. No chest pain. Plan discharge planning today pending PT/OT and ambulation tolerance. Continue guideline-directed meds."
-        },
-        {
-          "note_id": "P-002-n-006",
-          "timestamp": "2026-02-18T10:33",
-          "author_role": "CaseManager",
-          "note_text": "Case management: Family expresses concern about discharge timing due to persistent dyspnea with activity. Reviewed criteria and plan with team. Patient requests 'one more day.'"
-        },
-        {
-          "note_id": "P-002-n-007",
-          "timestamp": "2026-02-18T14:18",
-          "author_role": "RN",
-          "note_text": "Patient continues orthopnea overnight per report. Crackles still present. Ambulation limited by SOB. Family requests MD update; message sent to primary team."
-        },
-
-        {
-          "note_id": "P-002-n-008",
-          "timestamp": "2026-02-19T07:55",
-          "author_role": "MD",
-          "note_text": "Progress: Patient euvolemic. Ambulating independently per nursing sign-out. Breathing comfortable. Plan discharge today with PO diuretics and close cardiology follow-up."
-        },
-        {
-          "note_id": "P-002-n-009",
-          "timestamp": "2026-02-19T08:22",
-          "author_role": "RN",
-          "note_text": "Morning: Patient unable to lie flat, slept upright in chair. SOB with minimal activity. Required wheelchair to bathroom due to fatigue. Family states, 'we were told she is ready to go home today but she looks worse.'"
-        },
-        {
-          "note_id": "P-002-n-010",
-          "timestamp": "2026-02-19T09:40",
-          "author_role": "PT",
-          "note_text": "PT session: Patient tolerated <25 ft ambulation with frequent rest breaks due to dyspnea. Reports dizziness on standing. Recommendation: additional therapy and reassess discharge readiness."
-        },
-        {
-          "note_id": "P-002-n-011",
-          "timestamp": "2026-02-19T12:05",
-          "author_role": "MD",
-          "note_text": "Progress addendum: Symptoms stable. No acute distress observed. Continue discharge planning; PT note reviewed, anticipate safe discharge with family support."
+          "note_text": "RN Evening Note: Patient comfortable, pain 2/10. Ambulating to bathroom without difficulty. Tolerating diet. Vitals stable."
         }
       ]
     },
     {
-      "patient_id": "P-003",
-      "patient_name": "Robert Chen",
-      "mrn": "MRN-110771",
-      "admission_date": "2026-02-18",
-      "diagnosis": "COPD exacerbation with conflicting oxygen targets and hypercapnia concern",
+      "patient_id": "DX-403",
+      "patient_name": "Hannah Kim",
+      "mrn": "MRN-770184",
+      "admission_date": "2026-02-22",
+      "diagnosis": "Small bowel obstruction (SBO) vs ileus, evaluation ongoing",
       "notes": [
         {
-          "note_id": "P-003-n-001",
-          "timestamp": "2026-02-18T06:58",
-          "author_role": "MD",
-          "note_text": "ED: 72M COPD with increased wheeze and sputum. Started steroids and bronchodilators. O2 placed for SpO2 88-92% goal. Admit medicine."
+          "note_id": "DX-403-n-001",
+          "timestamp": "2026-02-22T05:56:00",
+          "author_role": "ED_MD",
+          "note_text": "ED Provider Note: 61F with abdominal pain, nausea, emesis x3 at home, no flatus since yesterday. CT A/P: dilated small bowel with transition point, concern SBO. NPO, IV fluids, pain control. Consult surgery."
         },
         {
-          "note_id": "P-003-n-002",
-          "timestamp": "2026-02-18T09:21",
+          "note_id": "DX-403-n-002",
+          "timestamp": "2026-02-22T08:22:00",
+          "author_role": "SURGERY_RESIDENT_MD",
+          "note_text": "Surgery Consult: Exam soft, mild distention, diffuse tenderness without peritoneal signs. Impression: partial SBO. Plan: NPO, NG tube if vomiting persists, serial abdominal exams. No OR today at this time."
+        },
+        {
+          "note_id": "DX-403-n-003",
+          "timestamp": "2026-02-22T10:10:00",
           "author_role": "RN",
-          "note_text": "On arrival to unit, SpO2 86% on 2L NC. Increased to 5L NC to reach 95%. Patient less anxious. No new orders at this time."
+          "note_text": "RN Note: Patient anxious and states ED doctor told her she would \"go to surgery this morning\" and wants family called. Continues nausea, requests to drink water. Reinforced NPO, paged team for clarification of plan."
         },
         {
-          "note_id": "P-003-n-003",
-          "timestamp": "2026-02-18T10:05",
-          "author_role": "RT",
-          "note_text": "RT assessment: COPD exacerbation. Recommend SpO2 goal 88-92% to avoid CO2 retention. Currently 95% on 5L. RN notified, suggested titration down if tolerated."
+          "note_id": "DX-403-n-004",
+          "timestamp": "2026-02-22T13:34:00",
+          "author_role": "HOSPITALIST_MD",
+          "note_text": "Medicine Progress Note: SBO vs ileus, awaiting surgery recs. Continue NPO, IV fluids. If improves, consider advancing diet later today. Pain and nausea meds PRN."
         },
         {
-          "note_id": "P-003-n-004",
-          "timestamp": "2026-02-18T12:12",
-          "author_role": "MD",
-          "note_text": "Progress: Stable on oxygen. Continue nebs and steroids. O2 goal 88-92%. Please titrate down as tolerated."
-        },
-        {
-          "note_id": "P-003-n-005",
-          "timestamp": "2026-02-18T14:40",
+          "note_id": "DX-403-n-005",
+          "timestamp": "2026-02-22T16:58:00",
           "author_role": "RN",
-          "note_text": "Patient anxious when O2 decreased. States 'I can't breathe' when SpO2 89-90% on 2L. O2 increased back to 4L for comfort; SpO2 now 94%. MD notified."
+          "note_text": "RN Shift Note: Patient reports worsening abdominal pain 8/10 and increased nausea. HR 116. Abdomen more distended per patient report. No flatus. Team paged for reassessment."
         },
         {
-          "note_id": "P-003-n-006",
-          "timestamp": "2026-02-18T18:09",
-          "author_role": "MD",
-          "note_text": "Discussed O2 targets with patient. Patient requests higher oxygen because see '94-95%' as normal. Reinforced goal 88-92% given COPD history. Continue monitoring."
-        }
-      ]
-    },
-    {
-      "patient_id": "P-004",
-      "patient_name": "Aisha Khan",
-      "mrn": "MRN-552901",
-      "admission_date": "2026-02-18",
-      "diagnosis": "Post-op day 1 appendectomy with pain control concerns and differing documentation of opioid response",
-      "notes": [
-        {
-          "note_id": "P-004-n-001",
-          "timestamp": "2026-02-18T11:36",
-          "author_role": "MD",
-          "note_text": "Surgery: POD0 s/p laparoscopic appendectomy uncomplicated. Plan multimodal pain control, advance diet as tolerated, ambulate."
-        },
-        {
-          "note_id": "P-004-n-002",
-          "timestamp": "2026-02-18T15:02",
-          "author_role": "RN",
-          "note_text": "Patient reports 9/10 abdominal pain. Tearful. Received IV opioid per MAR with minimal relief per patient. Abdomen soft, incisions CDI. Surgeon paged."
-        },
-        {
-          "note_id": "P-004-n-003",
-          "timestamp": "2026-02-18T16:18",
-          "author_role": "MD",
-          "note_text": "Post-op check: Patient comfortable, pain controlled. Tolerating sips. Continue current regimen."
-        },
-        {
-          "note_id": "P-004-n-004",
-          "timestamp": "2026-02-18T19:55",
-          "author_role": "RN",
-          "note_text": "Evening: Patient continues to rate pain 8-9/10, states 'doctor said I'm fine but I'm not.' Guarding noted with movement. Encouraged splinting and ambulation as tolerated. MD updated."
-        },
-        {
-          "note_id": "P-004-n-005",
-          "timestamp": "2026-02-19T07:34",
-          "author_role": "MD",
-          "note_text": "POD1: Pain improved. Ambulating. Plan discharge later today if tolerating diet and pain controlled on PO meds."
-        },
-        {
-          "note_id": "P-004-n-006",
-          "timestamp": "2026-02-19T09:10",
-          "author_role": "RN",
-          "note_text": "Patient reports persistent severe pain with ambulation, nauseated after PO meds. Requests to delay discharge. Notified team."
-        }
-      ]
-    },
-    {
-      "patient_id": "P-005",
-      "patient_name": "Ethan Brooks",
-      "mrn": "MRN-889314",
-      "admission_date": "2026-02-17",
-      "diagnosis": "Diabetic foot infection with evolving concern for osteomyelitis; conflicting messaging about amputation risk",
-      "notes": [
-        {
-          "note_id": "P-005-n-001",
-          "timestamp": "2026-02-17T13:22",
-          "author_role": "MD",
-          "note_text": "Admit: 58M T2DM with plantar ulcer, erythema and drainage. Started IV antibiotics. MRI ordered to evaluate for osteomyelitis. Podiatry consult requested."
-        },
-        {
-          "note_id": "P-005-n-002",
-          "timestamp": "2026-02-17T16:05",
-          "author_role": "RN",
-          "note_text": "Patient anxious. States neighbor 'lost a foot from diabetes' and asks if he will need amputation. Provided reassurance that workup is ongoing. Dressing changed per order."
-        },
-        {
-          "note_id": "P-005-n-003",
-          "timestamp": "2026-02-17T18:40",
-          "author_role": "MD",
-          "note_text": "Progress: Cellulitis improving. Await MRI. Discussed possibility of deeper infection; no surgical plan at this time."
-        },
-        {
-          "note_id": "P-005-n-004",
-          "timestamp": "2026-02-18T09:12",
-          "author_role": "Podiatry",
-          "note_text": "Podiatry consult: Ulcer probes deep. Recommend offloading and await MRI results. Discussed that if bone infection present, may require prolonged antibiotics and possible surgical debridement."
-        },
-        {
-          "note_id": "P-005-n-005",
-          "timestamp": "2026-02-18T12:26",
-          "author_role": "RN",
-          "note_text": "Patient states 'podiatry told me they might cut my foot off today.' Patient distressed. Clarified that note states MRI pending and no immediate surgery scheduled. Requested MD to speak with patient."
-        },
-        {
-          "note_id": "P-005-n-006",
-          "timestamp": "2026-02-18T15:47",
-          "author_role": "MD",
-          "note_text": "Spoke with patient re: plan. Explained MRI pending to determine depth of infection. Reviewed potential treatment paths including antibiotics and procedures such as debridement if needed. Patient verbalized understanding."
-        },
-        {
-          "note_id": "P-005-n-007",
-          "timestamp": "2026-02-18T20:33",
-          "author_role": "RN",
-          "note_text": "Evening: Patient calmer after MD discussion. Continues to ask timeline for MRI and results. Pain controlled. Dressing dry/intact."
+          "note_id": "DX-403-n-006",
+          "timestamp": "2026-02-22T17:26:00",
+          "author_role": "SURGERY_RESIDENT_MD",
+          "note_text": "Surgery Re-eval: Patient resting, reports pain improved after meds. Abdomen soft, mild distention. Continue nonoperative management. No OR planned currently."
         }
       ]
     }

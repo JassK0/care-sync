@@ -21,19 +21,51 @@ export default function NotesPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchNotes()
+    // Try to load from localStorage first
+    const cachedNotes = localStorage.getItem('notes_cache');
+    const cacheTimestamp = localStorage.getItem('notes_cache_timestamp');
+    
+    if (cachedNotes && cacheTimestamp) {
+      const age = Date.now() - parseInt(cacheTimestamp);
+      if (age < 3600000) { // 1 hour
+        console.log('Loading notes from localStorage cache');
+        const data = JSON.parse(cachedNotes);
+        setNotes(data.notes || []);
+        setLoading(false);
+        // Still fetch in background to update cache (without showing loading)
+        fetchNotes(false); // Pass false to skip setting loading state
+        return;
+      }
+    }
+    
+    fetchNotes(true); // Pass true to show loading state
   }, [])
 
-  const fetchNotes = async () => {
+  const fetchNotes = async (showLoading: boolean = true) => {
     try {
-      setLoading(true)
+      if (showLoading) {
+        setLoading(true);
+      }
+      console.log('Fetching notes from:', API_ENDPOINTS.notes)
       const res = await axios.get(API_ENDPOINTS.notes)
+      console.log('Notes API response:', res.data)
       setNotes(res.data.notes || [])
       setError(null)
+      
+      // Cache in localStorage
+      localStorage.setItem('notes_cache', JSON.stringify(res.data));
+      localStorage.setItem('notes_cache_timestamp', Date.now().toString());
     } catch (err: any) {
-      setError(err.message || 'Failed to load notes')
+      console.error('Error fetching notes:', err)
+      console.error('Error response:', err.response?.data)
+      // Only set error if we're showing loading (not a background refresh)
+      if (showLoading) {
+        setError(err.response?.data?.error || err.message || 'Failed to load notes')
+      }
     } finally {
-      setLoading(false)
+      if (showLoading) {
+        setLoading(false)
+      }
     }
   }
 
@@ -47,6 +79,7 @@ export default function NotesPage() {
             <Link href="/patients">Patients</Link>
             <Link href="/notes">Notes</Link>
             <Link href="/alerts">Alerts</Link>
+            <Link href="/docs">Documentation</Link>
           </nav>
         </div>
       </div>
@@ -70,7 +103,7 @@ export default function NotesPage() {
                         </Link>
                       </div>
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                        <span className={`role-badge ${note.author_role.toLowerCase()}`}>
+                        <span className={`role-badge ${note.author_role.toLowerCase().replace(/_/g, '')}`}>
                           {note.author_role}
                         </span>
                         <span style={{ color: '#666', fontSize: '14px' }}>

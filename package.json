@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "description": "Clinical Narrative Drift Detector - Enterprise AI Hackathon MVP",
   "scripts": {
-    "dev": "vercel dev",
-    "dev:frontend": "cd frontend && npm run dev",
-    "install:all": "npm run install:frontend",
-    "install:frontend": "cd frontend && npm install",
-    "kill:port": "./kill-port.sh"
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm start",
+    "install:all": "cd frontend && npm install"
   },
   "keywords": [
     "healthcare",
@@ -16,8 +15,5 @@
     "drift-detection"
   ],
   "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  }
+  "license": "MIT"
 }

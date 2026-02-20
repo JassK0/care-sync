@@ -24,11 +24,10 @@ export default function Home() {
     try {
       setLoading(true)
       
-      console.log('🔧 API_URL:', API_URL)
       console.log('🔧 Making requests to:', {
-        patients: `${API_URL}/api/patients`,
-        notes: `${API_URL}/api/notes`,
-        alerts: `${API_URL}/api/alerts`,
+        patients: '/api/patients',
+        notes: '/api/notes',
+        alerts: '/api/alerts',
       })
 
       // Load stats quickly (patients and notes are fast) - don't wait for health check
@@ -48,11 +47,9 @@ export default function Home() {
       
       // Use Promise.allSettled to not block on individual failures
       const [patientsRes, notesRes] = await Promise.allSettled([
-        fetch(`${API_URL}/api/patients/`, {
+        fetch('/api/patients', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
-          mode: 'cors',
-          credentials: 'omit',
           signal: patientsController.signal,
         }).then(async r => {
           clearTimeout(patientsTimeoutId)
@@ -65,11 +62,9 @@ export default function Home() {
           }
           throw err
         }),
-        fetch(`${API_URL}/api/notes/`, {
+        fetch('/api/notes', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
-          mode: 'cors',
-          credentials: 'omit',
           signal: notesController.signal,
         }).then(async r => {
           clearTimeout(notesTimeoutId)
@@ -134,11 +129,9 @@ The backend may not be running. To start it:
         const alertsController = new AbortController()
         const alertsTimeout = setTimeout(() => alertsController.abort(), 180000) // 3 minutes for AI (first time)
         
-        const alertsRes = await fetch(`${API_URL}/api/alerts/`, {
+        const alertsRes = await fetch('/api/alerts', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
-          mode: 'cors',
-          credentials: 'omit',
           signal: alertsController.signal,
         }).then(async r => {
           clearTimeout(alertsTimeout)
@@ -213,6 +206,7 @@ Check browser DevTools Console and Network tabs for details.`)
             <Link href="/patients">Patients</Link>
             <Link href="/notes">Notes</Link>
             <Link href="/alerts">Alerts</Link>
+            <Link href="/docs">Documentation</Link>
           </nav>
         </div>
       </div>
@@ -228,9 +222,7 @@ Check browser DevTools Console and Network tabs for details.`)
               <ol style={{ marginLeft: '20px', marginTop: '8px' }}>
                 <li>Open browser DevTools (F12) and check the Console tab for detailed errors</li>
                 <li>Check the Network tab to see if requests are being made</li>
-                <li>Test the connection: <a href="/simple-test" style={{ color: '#667eea' }}>Visit Simple Test Page</a></li>
-                <li>Verify backend is running: <code>curl http://localhost:8000/api/health</code></li>
-                <li>Make sure the backend is running: <code>npm run dev:backend</code></li>
+                <li>Verify the API routes are working: <code>curl http://localhost:3001/api/health</code></li>
               </ol>
             </div>
           </div>
@@ -268,7 +260,7 @@ Check browser DevTools Console and Network tabs for details.`)
               <h2>Welcome to Care Sync</h2>
               <p style={{ marginBottom: '16px', lineHeight: '1.6' }}>
                 Care Sync is an enterprise-oriented AI system that detects clinical narrative drift 
-                across hospital roles (physicians, nurses, allied health) using synthetic data only.
+                across hospital roles (physicians, nurses, allied health). This demonstration uses synthetic data; designed to integrate with hospital systems like Oracle Health (Cerner), Epic, and other EHR platforms.
               </p>
               <p style={{ marginBottom: '16px', lineHeight: '1.6' }}>
                 The system extracts explicitly stated clinical facts from notes and detects 

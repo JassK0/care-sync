@@ -20,19 +20,51 @@ export default function PatientsPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchPatients()
+    // Try to load from localStorage first
+    const cachedPatients = localStorage.getItem('patients_cache');
+    const cacheTimestamp = localStorage.getItem('patients_cache_timestamp');
+    
+    if (cachedPatients && cacheTimestamp) {
+      const age = Date.now() - parseInt(cacheTimestamp);
+      if (age < 3600000) { // 1 hour
+        console.log('Loading patients from localStorage cache');
+        const data = JSON.parse(cachedPatients);
+        setPatients(data.patients || []);
+        setLoading(false);
+        // Still fetch in background to update cache (without showing loading)
+        fetchPatients(false); // Pass false to skip setting loading state
+        return;
+      }
+    }
+    
+    fetchPatients(true); // Pass true to show loading state
   }, [])
 
-  const fetchPatients = async () => {
+  const fetchPatients = async (showLoading: boolean = true) => {
     try {
-      setLoading(true)
+      if (showLoading) {
+        setLoading(true);
+      }
+      console.log('Fetching patients from:', API_ENDPOINTS.patients)
       const res = await axios.get(API_ENDPOINTS.patients)
+      console.log('Patients API response:', res.data)
       setPatients(res.data.patients || [])
       setError(null)
+      
+      // Cache in localStorage
+      localStorage.setItem('patients_cache', JSON.stringify(res.data));
+      localStorage.setItem('patients_cache_timestamp', Date.now().toString());
     } catch (err: any) {
-      setError(err.message || 'Failed to load patients')
+      console.error('Error fetching patients:', err)
+      console.error('Error response:', err.response?.data)
+      // Only set error if we're showing loading (not a background refresh)
+      if (showLoading) {
+        setError(err.response?.data?.error || err.message || 'Failed to load patients')
+      }
     } finally {
-      setLoading(false)
+      if (showLoading) {
+        setLoading(false)
+      }
     }
   }
 
@@ -46,6 +78,7 @@ export default function PatientsPage() {
             <Link href="/patients">Patients</Link>
             <Link href="/notes">Notes</Link>
             <Link href="/alerts">Alerts</Link>
+            <Link href="/docs">Documentation</Link>
           </nav>
         </div>
       </div>

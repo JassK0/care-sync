@@ -7,8 +7,9 @@ import { API_URL } from '@/lib/api'
 interface Alert {
   alert_id: string
   alert_type: string
-  severity: string
+  severity: 'critical' | 'high' | 'medium' | 'low'
   patient_id: string
+  patient_name?: string
   roles_involved: string[]
   conflicting_facts: any[]
   conflicting_fact_types?: string[]
@@ -16,6 +17,7 @@ interface Alert {
   source_note_ids: string[]
   description: string
   timestamp: string
+  clinical_score?: number
 }
 
 interface Note {
@@ -36,19 +38,37 @@ export default function AlertsPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchAlerts()
+    // Try to load from localStorage first
+    const cachedAlerts = localStorage.getItem('alerts_cache');
+    const cacheTimestamp = localStorage.getItem('alerts_cache_timestamp');
+    
+    if (cachedAlerts && cacheTimestamp) {
+      const age = Date.now() - parseInt(cacheTimestamp);
+      if (age < 1800000) { // 30 minutes
+        console.log('Loading alerts from localStorage cache');
+        const data = JSON.parse(cachedAlerts);
+        setAlerts(data.alerts || []);
+        setLoading(false);
+        // Still fetch in background to update cache (without showing loading)
+        fetchAlerts(false); // Pass false to skip setting loading state
+        return;
+      }
+    }
+    
+    fetchAlerts(true); // Pass true to show loading state
   }, [])
 
-  const fetchAlerts = async () => {
+  const fetchAlerts = async (showLoading: boolean = true) => {
     try {
-      setLoading(true)
-      console.log('Loading alerts from:', `${API_URL}/api/alerts/`)
+      if (showLoading) {
+        setLoading(true);
+      }
+      console.log('Loading alerts from: /api/alerts')
       
-      const res = await fetch(`${API_URL}/api/alerts/`, {
+      const res = await fetch('/api/alerts', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        mode: 'cors',
-        credentials: 'omit',
+        next: { revalidate: 1800 }, // Cache for 30 minutes
       })
       
       if (!res.ok) {
@@ -56,8 +76,14 @@ export default function AlertsPage() {
       }
       
       const data = await res.json()
+      console.log('Alerts API response:', data)
       const alertsData = data.alerts || []
+      console.log(`Found ${alertsData.length} alerts`)
       setAlerts(alertsData)
+      
+      // Cache in localStorage
+      localStorage.setItem('alerts_cache', JSON.stringify(data));
+      localStorage.setItem('alerts_cache_timestamp', Date.now().toString());
       
       // Fetch all unique note IDs from alerts
       const allNoteIds = new Set<string>()
@@ -71,11 +97,9 @@ export default function AlertsPage() {
       // Fetch notes by IDs
       if (allNoteIds.size > 0) {
         try {
-          const notesRes = await fetch(`${API_URL}/api/notes/by-ids`, {
+          const notesRes = await fetch('/api/notes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            mode: 'cors',
-            credentials: 'omit',
             body: JSON.stringify({ note_ids: Array.from(allNoteIds) })
           })
           
@@ -95,21 +119,31 @@ export default function AlertsPage() {
       if (data.warning) {
         console.warn('⚠️', data.warning)
         setError(data.warning)
+      } else if (data.error) {
+        console.error('❌ API Error:', data.error)
+        setError(data.error)
       } else {
         setError(null)
       }
     } catch (err: any) {
       console.error('Error loading alerts:', err)
-      setError(err.message || 'Failed to load alerts')
+      // Only set error if we're showing loading (not a background refresh)
+      if (showLoading) {
+        setError(err.message || 'Failed to load alerts')
+      }
     } finally {
-      setLoading(false)
+      if (showLoading) {
+        setLoading(false)
+      }
     }
   }
 
   const getSeverityCounts = () => {
-    const counts = { high: 0, medium: 0, low: 0 }
+    const counts = { critical: 0, high: 0, medium: 0, low: 0 }
     alerts.forEach(alert => {
-      counts[alert.severity as keyof typeof counts]++
+      if (alert.severity in counts) {
+        counts[alert.severity as keyof typeof counts]++
+      }
     })
     return counts
   }
@@ -138,6 +172,7 @@ export default function AlertsPage() {
             <Link href="/patients">Patients</Link>
             <Link href="/notes">Notes</Link>
             <Link href="/alerts">Alerts</Link>
+            <Link href="/docs">Documentation</Link>
           </nav>
         </div>
       </div>
@@ -148,166 +183,230 @@ export default function AlertsPage() {
             <h3>Total Alerts</h3>
             <div className="value">{alerts.length}</div>
           </div>
-          <div className="stat-card">
-            <h3>High Severity</h3>
-            <div className="value" style={{ color: '#e74c3c' }}>{severityCounts.high}</div>
+          <div className="stat-card critical">
+            <h3>Critical</h3>
+            <div className="value">{severityCounts.critical}</div>
           </div>
-          <div className="stat-card">
-            <h3>Medium Severity</h3>
-            <div className="value" style={{ color: '#f39c12' }}>{severityCounts.medium}</div>
+          <div className="stat-card high">
+            <h3>High Priority</h3>
+            <div className="value">{severityCounts.high}</div>
           </div>
-          <div className="stat-card">
-            <h3>Low Severity</h3>
-            <div className="value" style={{ color: '#3498db' }}>{severityCounts.low}</div>
+          <div className="stat-card medium">
+            <h3>Medium Priority</h3>
+            <div className="value">{severityCounts.medium}</div>
+          </div>
+          <div className="stat-card low">
+            <h3>Low Priority</h3>
+            <div className="value">{severityCounts.low}</div>
           </div>
         </div>
 
         <div className="card">
-          <h2>Drift Detection Alerts</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '600', color: '#212121' }}>
+              Clinical Decision Support Alerts
+            </h2>
+            <div style={{ fontSize: '14px', color: '#757575' }}>
+              {alerts.length} {alerts.length === 1 ? 'alert' : 'alerts'} detected
+            </div>
+          </div>
           
-          {loading && <div className="loading">Loading alerts...</div>}
-          {error && <div className="error">Error: {error}</div>}
+          {loading && (
+            <div className="loading" style={{ padding: '40px', textAlign: 'center', color: '#757575' }}>
+              <div style={{ fontSize: '16px' }}>Loading clinical alerts...</div>
+            </div>
+          )}
+          {error && (
+            <div className="error" style={{ 
+              backgroundColor: '#ffebee', 
+              color: '#c62828', 
+              padding: '16px', 
+              borderRadius: '4px', 
+              margin: '16px 0',
+              border: '1px solid #ffcdd2'
+            }}>
+              <strong>Error:</strong> {error}
+            </div>
+          )}
 
           {!loading && !error && (
             <>
               {alerts.length === 0 ? (
-                <p>No alerts detected.</p>
+                <div style={{ padding: '40px', textAlign: 'center', color: '#757575' }}>
+                  <p style={{ fontSize: '16px' }}>No clinical alerts detected at this time.</p>
+                </div>
               ) : (
                 alerts.map((alert) => (
-                  <div key={alert.alert_id} className={`alert-card ${alert.severity}`} style={{ marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
-                      <div>
-                        <h3 style={{ marginBottom: '8px' }}>
-                          {alert.alert_type.replace(/_/g, ' ').toUpperCase()}
+                  <div key={alert.alert_id} className={`alert-card ${alert.severity}`}>
+                    {/* Alert Header */}
+                    <div className="alert-header">
+                      <div style={{ flex: 1 }}>
+                        <h3 className="alert-title">
+                          {alert.alert_type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
                         </h3>
-                        <Link href={`/patients/${alert.patient_id}`} style={{ color: '#667eea', fontSize: '14px' }}>
-                          Patient: {alert.patient_id}
-                        </Link>
+                        <p className="alert-subtitle">
+                          <Link href={`/patients/${alert.patient_id}`} style={{ color: '#0066cc', textDecoration: 'none', fontWeight: '500' }}>
+                            {alert.patient_name ? `${alert.patient_name} (${alert.patient_id})` : `Patient ID: ${alert.patient_id}`}
+                          </Link>
+                          {' • '}
+                          <span>Detected: {new Date(alert.timestamp).toLocaleString()}</span>
+                        </p>
                       </div>
-                      <span className={`badge badge-${alert.severity}`}>
-                        {alert.severity}
+                      <span className={`alert-severity-badge ${alert.severity}`}>
+                        {alert.severity.toUpperCase()}
                       </span>
                     </div>
                     
-                    <p style={{ marginBottom: '12px', lineHeight: '1.6' }}>{alert.description}</p>
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px', fontSize: '14px', color: '#666' }}>
-                      <div>
-                        <strong>Roles:</strong> {alert.roles_involved.join(', ')}
-                      </div>
-                      <div>
-                        <strong>Conflicting Types:</strong> {alert.conflicting_fact_types?.join(', ') || 'N/A'}
-                      </div>
-                      <div>
-                        <strong>Time Window:</strong> {alert.time_window}
-                      </div>
-                      <div>
-                        <strong>Timestamp:</strong> {new Date(alert.timestamp).toLocaleString()}
-                      </div>
-                    </div>
-
-                    {alert.conflicting_facts && alert.conflicting_facts.length > 0 && (
-                      <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
-                        <strong style={{ display: 'block', marginBottom: '12px' }}>Conflicting Facts:</strong>
-                        {alert.conflicting_facts.map((cf: any, idx: number) => (
-                          <div key={idx} style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: idx < alert.conflicting_facts.length - 1 ? '1px solid #e0e0e0' : 'none' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                              <span className={`role-badge ${cf.role.toLowerCase()}`}>
-                                {cf.role}
-                              </span>
-                              <span style={{ fontSize: '12px', color: '#666' }}>
-                                Note: {cf.note_id}
-                              </span>
+                    {/* Alert Body */}
+                    <div className="alert-body">
+                      <p className="alert-description">{alert.description}</p>
+                      
+                      {/* Metadata Grid */}
+                      <div className="alert-metadata">
+                        <div className="alert-metadata-item">
+                          <span className="alert-metadata-label">Clinical Score</span>
+                          <span className="alert-metadata-value">
+                            {alert.clinical_score !== undefined ? alert.clinical_score : 'N/A'}
+                          </span>
+                        </div>
+                        <div className="alert-metadata-item">
+                          <span className="alert-metadata-label">Time Window</span>
+                          <span className="alert-metadata-value">{alert.time_window}</span>
+                        </div>
+                        <div className="alert-metadata-item">
+                          <span className="alert-metadata-label">Roles Involved</span>
+                          <div className="alert-metadata-value">
+                            <div className="role-display">
+                              {alert.roles_involved.map((role: string, idx: number) => {
+                                const roleLower = role.toLowerCase().replace(/_/g, '');
+                                return (
+                                  <span key={idx} className={`role-badge ${roleLower}`}>
+                                    {role}
+                                  </span>
+                                );
+                              })}
                             </div>
-                            <div style={{ marginLeft: '8px' }}>
-                              <div><strong>Type:</strong> {cf.fact.type}</div>
-                              <div><strong>Value:</strong> {cf.fact.value}</div>
-                              <div><strong>Details:</strong> {cf.fact.details}</div>
-                              {cf.fact.source_quote && (
-                                <div style={{ marginTop: '4px', fontSize: '12px', fontStyle: 'italic', color: '#666' }}>
-                                  "{cf.fact.source_quote}"
+                          </div>
+                        </div>
+                        <div className="alert-metadata-item">
+                          <span className="alert-metadata-label">Fact Types</span>
+                          <span className="alert-metadata-value">
+                            {alert.conflicting_fact_types?.join(', ') || 'N/A'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Conflicting Facts Section */}
+                      {alert.conflicting_facts && alert.conflicting_facts.length > 0 && (
+                        <div className="alert-section">
+                          <h4 className="alert-section-title">Clinical Evidence</h4>
+                          {alert.conflicting_facts.map((cf: any, idx: number) => (
+                            <div key={idx} className="conflicting-fact-item">
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                                <span className={`role-badge ${cf.role.toLowerCase().replace(/_/g, '')}`}>
+                                  {cf.role}
+                                </span>
+                                <span style={{ fontSize: '11px', color: '#757575', fontFamily: 'monospace' }}>
+                                  {cf.note_id}
+                                </span>
+                                <span style={{ fontSize: '11px', color: '#757575' }}>
+                                  {new Date(cf.note_timestamp).toLocaleString()}
+                                </span>
+                              </div>
+                              <div style={{ display: 'grid', gap: '6px', fontSize: '13px' }}>
+                                <div>
+                                  <strong style={{ color: '#424242' }}>Type:</strong>{' '}
+                                  <span style={{ color: '#616161' }}>{cf.fact.type?.replace(/_/g, ' ') || 'N/A'}</span>
+                                </div>
+                                <div>
+                                  <strong style={{ color: '#424242' }}>Value:</strong>{' '}
+                                  <span style={{ color: '#212121', fontWeight: '500' }}>{cf.fact.value || 'N/A'}</span>
+                                </div>
+                                {cf.fact.details && (
+                                  <div>
+                                    <strong style={{ color: '#424242' }}>Details:</strong>{' '}
+                                    <span style={{ color: '#616161' }}>{cf.fact.details}</span>
+                                  </div>
+                                )}
+                                {cf.fact.source_quote && (
+                                  <div style={{ 
+                                    marginTop: '8px', 
+                                    padding: '10px', 
+                                    backgroundColor: '#f5f5f5', 
+                                    borderRadius: '4px',
+                                    borderLeft: '3px solid #0066cc',
+                                    fontSize: '12px',
+                                    fontStyle: 'italic',
+                                    color: '#424242',
+                                    lineHeight: '1.5'
+                                  }}>
+                                    <strong style={{ display: 'block', marginBottom: '4px', fontStyle: 'normal', color: '#212121' }}>
+                                      Source Quote:
+                                    </strong>
+                                    "{cf.fact.source_quote}"
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Source Notes Section */}
+                      <div className="alert-section" style={{ marginTop: '16px' }}>
+                        <h4 className="alert-section-title">
+                          Source Documentation ({alert.source_note_ids.length})
+                        </h4>
+                        {alert.source_note_ids.map((noteId: string, idx: number) => {
+                          const note = notesMap[noteId]
+                          const isExpanded = expandedNotes.has(noteId)
+                          
+                          return (
+                            <div key={noteId} className="source-note-item">
+                              <div className="source-note-header">
+                                <div className="source-note-info">
+                                  <span className={`role-badge ${(note?.author_role || 'unknown').toLowerCase().replace(/_/g, '')}`}>
+                                    {note?.author_role || 'Unknown'}
+                                  </span>
+                                  <span style={{ fontWeight: '600', color: '#212121', fontFamily: 'monospace', fontSize: '12px' }}>
+                                    {noteId}
+                                  </span>
+                                  {note && (
+                                    <>
+                                      <span style={{ fontSize: '12px', color: '#757575' }}>
+                                        {note.author_name}
+                                      </span>
+                                      <span style={{ fontSize: '12px', color: '#757575' }}>
+                                        {new Date(note.timestamp).toLocaleString()}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                                {note && (
+                                  <button
+                                    onClick={() => toggleNoteExpansion(noteId)}
+                                    className="btn-view-note"
+                                  >
+                                    {isExpanded ? '▼ Hide Note' : '▶ View Note'}
+                                  </button>
+                                )}
+                              </div>
+                              
+                              {note && isExpanded && (
+                                <div className="source-note-text">
+                                  {note.note_text}
+                                </div>
+                              )}
+                              
+                              {!note && (
+                                <div style={{ fontSize: '12px', color: '#9e9e9e', fontStyle: 'italic' }}>
+                                  Note not available in database
                                 </div>
                               )}
                             </div>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
-                    )}
-
-                    {/* Source Notes Section */}
-                    <div style={{ marginTop: '20px', padding: '16px', backgroundColor: '#f0f4ff', borderRadius: '4px', border: '1px solid #667eea' }}>
-                      <strong style={{ display: 'block', marginBottom: '12px', color: '#667eea' }}>
-                        📋 Source Notes ({alert.source_note_ids.length}):
-                      </strong>
-                      {alert.source_note_ids.map((noteId: string, idx: number) => {
-                        const note = notesMap[noteId]
-                        const isExpanded = expandedNotes.has(noteId)
-                        
-                        return (
-                          <div key={noteId} style={{ marginBottom: idx < alert.source_note_ids.length - 1 ? '16px' : '0', paddingBottom: idx < alert.source_note_ids.length - 1 ? '16px' : '0', borderBottom: idx < alert.source_note_ids.length - 1 ? '1px solid #d0d7ff' : 'none' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                <span className={`role-badge ${note?.author_role.toLowerCase() || 'unknown'}`}>
-                                  {note?.author_role || 'Unknown'}
-                                </span>
-                                <span style={{ fontWeight: '600', color: '#667eea' }}>
-                                  {noteId}
-                                </span>
-                                {note && (
-                                  <>
-                                    <span style={{ fontSize: '12px', color: '#666' }}>
-                                      {note.author_name}
-                                    </span>
-                                    <span style={{ fontSize: '12px', color: '#666' }}>
-                                      {new Date(note.timestamp).toLocaleString()}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              {note && (
-                                <button
-                                  onClick={() => toggleNoteExpansion(noteId)}
-                                  style={{
-                                    padding: '4px 12px',
-                                    fontSize: '12px',
-                                    backgroundColor: '#667eea',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer'
-                                  }}
-                                >
-                                  {isExpanded ? '▼ Hide' : '▶ View'}
-                                </button>
-                              )}
-                            </div>
-                            
-                            {note && isExpanded && (
-                              <div style={{ 
-                                marginTop: '12px', 
-                                padding: '12px', 
-                                backgroundColor: 'white', 
-                                borderRadius: '4px',
-                                border: '1px solid #e0e0e0',
-                                fontSize: '14px',
-                                lineHeight: '1.6',
-                                whiteSpace: 'pre-wrap'
-                              }}>
-                                <strong style={{ display: 'block', marginBottom: '8px', color: '#333' }}>
-                                  Full Note Text:
-                                </strong>
-                                {note.note_text}
-                              </div>
-                            )}
-                            
-                            {!note && (
-                              <div style={{ fontSize: '12px', color: '#999', fontStyle: 'italic' }}>
-                                Note not found in database
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
                     </div>
                   </div>
                 ))
