@@ -645,32 +645,31 @@ export default function DocsPage() {
         }}>
           Built With
         </h2>
-        <div style={{ 
-          display: 'flex', 
-          flexWrap: 'wrap', 
-          gap: '8px',
-          fontSize: '14px'
-        }}>
-          {[
-            'nextjs', 'react', 'typescript', 'openai', 'gpt-5.1', 
-            'vercel', 'serverless', 'llm', 'clinical-ai', 'healthcare',
-            'sdg-3', 'patient-safety', 'clinical-decision-support',
-            'documentation-analysis', 'drift-detection'
-          ].map((tech) => (
-            <span
-              key={tech}
-              style={{
-                padding: '6px 12px',
-                backgroundColor: '#e3f2fd',
-                color: '#1976d2',
-                borderRadius: '16px',
-                fontWeight: '500',
-                textTransform: 'lowercase'
-              }}
-            >
-              {tech}
-            </span>
-          ))}
+        <div style={{ fontSize: '15px', lineHeight: '1.8', color: '#424242' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: '#0066cc' }}>
+              Languages & Frameworks
+            </h3>
+            <p>TypeScript, JavaScript, React, Next.js 14</p>
+          </div>
+          <div style={{ marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: '#0066cc' }}>
+              APIs & Services
+            </h3>
+            <p>OpenAI API (GPT-5.1), Vercel Serverless Functions</p>
+          </div>
+          <div style={{ marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: '#0066cc' }}>
+              Deployment
+            </h3>
+            <p>Vercel</p>
+          </div>
+          <div>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: '#0066cc' }}>
+              Libraries
+            </h3>
+            <p>Axios, OpenAI SDK</p>
+          </div>
         </div>
       </div>
 
