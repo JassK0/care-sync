@@ -6,6 +6,62 @@ import Link from 'next/link'
 import axios from 'axios'
 import { API_ENDPOINTS } from '../../../lib/api'
 
+// Format time window for display
+const formatTimeWindow = (timeWindow: string): string => {
+  // Check if it's in the format "From ISO_DATE to ISO_DATE" or "From ISO_DATE to ISO_DATE"
+  const fromToMatch = timeWindow.match(/From\s+([^\s]+(?:\s+[^\s]+)*?)\s+to\s+([^\s]+(?:\s+[^\s]+)*)/i);
+  if (fromToMatch) {
+    try {
+      const startDateStr = fromToMatch[1].trim();
+      const endDateStr = fromToMatch[2].trim();
+      const startDate = new Date(startDateStr);
+      const endDate = new Date(endDateStr);
+      
+      // Check if dates are valid
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return timeWindow;
+      }
+      
+      // Format dates nicely - show date and time
+      const formatDate = (date: Date) => {
+        const dateStr = date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        });
+        const timeStr = date.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        });
+        return `${dateStr} at ${timeStr}`;
+      };
+      
+      // Calculate duration
+      const diffMs = endDate.getTime() - startDate.getTime();
+      const diffHours = diffMs / (1000 * 60 * 60);
+      const diffMinutes = diffMs / (1000 * 60);
+      
+      let duration = '';
+      if (diffHours >= 1) {
+        const hours = Math.floor(diffHours);
+        const minutes = Math.round((diffHours - hours) * 60);
+        duration = minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+      } else {
+        duration = `${Math.round(diffMinutes)}m`;
+      }
+      
+      return `${formatDate(startDate)} to ${formatDate(endDate)} (${duration})`;
+    } catch (e) {
+      // If parsing fails, return as is
+      return timeWindow;
+    }
+  }
+  
+  // If it's already a duration string like "2.5 hours", just return it
+  return timeWindow;
+}
+
 interface Note {
   note_id: string
   timestamp: string
@@ -256,7 +312,7 @@ export default function PatientDetailPage() {
                               </div>
                               <div className="alert-metadata-item">
                                 <span className="alert-metadata-label">Time Window</span>
-                                <span className="alert-metadata-value">{alert.time_window}</span>
+                                <span className="alert-metadata-value">{formatTimeWindow(alert.time_window)}</span>
                               </div>
                               <div className="alert-metadata-item">
                                 <span className="alert-metadata-label">Roles Involved</span>
