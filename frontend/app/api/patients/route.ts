@@ -28,14 +28,14 @@ export async function GET() {
           name: note.patient_name || 'Unknown',
           mrn: note.mrn || '',
           note_count: 0,
-          roles: new Set<string>(),
+          roles: [],
           latest_note: null,
         };
       }
 
       patients[patientId].note_count += 1;
       if (note.author_role) {
-        patients[patientId].roles.add(note.author_role);
+        patients[patientId].roles.push(note.author_role);
       }
 
       // Track latest note
@@ -46,13 +46,13 @@ export async function GET() {
       }
     }
 
-    // Convert sets to arrays for JSON serialization
+    // Deduplicate roles and convert to result format
     const result = Object.values(patients).map((patient) => ({
       patient_id: patient.patient_id,
       name: patient.name,
       mrn: patient.mrn,
       note_count: patient.note_count,
-      roles: Array.from(patient.roles),
+      roles: Array.from(new Set(patient.roles)),
       latest_note: patient.latest_note || '',
     }));
 
