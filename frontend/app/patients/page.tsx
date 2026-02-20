@@ -14,8 +14,25 @@ interface Patient {
   latest_note: string
 }
 
+interface Alert {
+  alert_id: string
+  patient_id: string
+  severity: 'critical' | 'high' | 'medium' | 'low'
+}
+
+interface PatientAlertCounts {
+  [patientId: string]: {
+    total: number
+    critical: number
+    high: number
+    medium: number
+    low: number
+  }
+}
+
 export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([])
+  const [alertCounts, setAlertCounts] = useState<PatientAlertCounts>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -33,11 +50,13 @@ export default function PatientsPage() {
         setLoading(false);
         // Still fetch in background to update cache (without showing loading)
         fetchPatients(false); // Pass false to skip setting loading state
+        fetchAlerts(); // Fetch alerts in background
         return;
       }
     }
     
     fetchPatients(true); // Pass true to show loading state
+    fetchAlerts(); // Fetch alerts
   }, [])
 
   const fetchPatients = async (showLoading: boolean = true) => {
@@ -65,6 +84,54 @@ export default function PatientsPage() {
       if (showLoading) {
         setLoading(false)
       }
+    }
+  }
+
+  const fetchAlerts = async () => {
+    try {
+      // Try to load from localStorage first
+      const cachedAlerts = localStorage.getItem('alerts_cache');
+      const cacheTimestamp = localStorage.getItem('alerts_cache_timestamp');
+      
+      let alerts: Alert[] = [];
+      
+      if (cachedAlerts && cacheTimestamp) {
+        const age = Date.now() - parseInt(cacheTimestamp);
+        if (age < 1800000) { // 30 minutes
+          console.log('Loading alerts from localStorage cache for patient counts');
+          const data = JSON.parse(cachedAlerts);
+          alerts = data.alerts || [];
+        }
+      }
+      
+      // If no cache or expired, fetch fresh
+      if (alerts.length === 0) {
+        const res = await fetch('/api/alerts', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          alerts = data.alerts || [];
+        }
+      }
+      
+      // Count alerts by patient and severity
+      const counts: PatientAlertCounts = {};
+      alerts.forEach((alert: Alert) => {
+        if (!counts[alert.patient_id]) {
+          counts[alert.patient_id] = { total: 0, critical: 0, high: 0, medium: 0, low: 0 };
+        }
+        counts[alert.patient_id].total++;
+        if (alert.severity in counts[alert.patient_id]) {
+          counts[alert.patient_id][alert.severity as keyof typeof counts[typeof alert.patient_id]]++;
+        }
+      });
+      
+      setAlertCounts(counts);
+    } catch (err) {
+      console.error('Error fetching alerts for patient counts:', err);
     }
   }
 
@@ -98,33 +165,82 @@ export default function PatientsPage() {
                   <th>Name</th>
                   <th>MRN</th>
                   <th>Notes</th>
+                  <th>Alerts</th>
                   <th>Roles</th>
                   <th>Latest Note</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {patients.map((patient) => (
-                  <tr key={patient.patient_id}>
-                    <td>{patient.patient_id}</td>
-                    <td>{patient.name}</td>
-                    <td>{patient.mrn}</td>
-                    <td>{patient.note_count}</td>
-                    <td>
-                      {patient.roles.map((role) => (
-                        <span key={role} className={`role-badge ${role.toLowerCase()}`} style={{ marginRight: '4px' }}>
-                          {role}
-                        </span>
-                      ))}
-                    </td>
-                    <td>{new Date(patient.latest_note).toLocaleString()}</td>
-                    <td>
-                      <Link href={`/patients/${patient.patient_id}`} className="btn btn-primary">
-                        View Details
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                {patients.map((patient) => {
+                  const counts = alertCounts[patient.patient_id] || { total: 0, critical: 0, high: 0, medium: 0, low: 0 };
+                  return (
+                    <tr key={patient.patient_id}>
+                      <td>{patient.patient_id}</td>
+                      <td>{patient.name}</td>
+                      <td>{patient.mrn}</td>
+                      <td>{patient.note_count}</td>
+                      <td>
+                        {counts.total > 0 ? (
+                          <Link 
+                            href={`/alerts?patient=${patient.patient_id}`}
+                            style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                          >
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '4px 8px',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              backgroundColor: counts.critical > 0 ? '#d32f2f' : 
+                                               counts.high > 0 ? '#f57c00' : 
+                                               counts.medium > 0 ? '#1976d2' : '#757575',
+                              color: '#ffffff',
+                              cursor: 'pointer'
+                            }}>
+                              {counts.total}
+                              {counts.critical > 0 && (
+                                <span style={{ fontSize: '10px' }}>⚠</span>
+                              )}
+                            </span>
+                            {counts.critical > 0 && (
+                              <span style={{ fontSize: '11px', color: '#d32f2f', fontWeight: '600' }}>
+                                {counts.critical}C
+                              </span>
+                            )}
+                            {counts.high > 0 && (
+                              <span style={{ fontSize: '11px', color: '#f57c00', fontWeight: '600' }}>
+                                {counts.high}H
+                              </span>
+                            )}
+                            {counts.medium > 0 && (
+                              <span style={{ fontSize: '11px', color: '#1976d2' }}>
+                                {counts.medium}M
+                              </span>
+                            )}
+                          </Link>
+                        ) : (
+                          <span style={{ color: '#9e9e9e', fontSize: '12px' }}>0</span>
+                        )}
+                      </td>
+                      <td>
+                        {patient.roles.map((role) => (
+                          <span key={role} className={`role-badge ${role.toLowerCase()}`} style={{ marginRight: '4px' }}>
+                            {role}
+                          </span>
+                        ))}
+                      </td>
+                      <td>{new Date(patient.latest_note).toLocaleString()}</td>
+                      <td>
+                        <Link href={`/patients/${patient.patient_id}`} className="btn btn-primary">
+                          View Details
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}

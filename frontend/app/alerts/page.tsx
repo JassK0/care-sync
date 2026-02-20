@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { API_URL } from '../../lib/api'
 
 interface Alert {
@@ -31,7 +32,10 @@ interface Note {
 }
 
 export default function AlertsPage() {
+  const searchParams = useSearchParams()
+  const filterPatientId = searchParams.get('patient')
   const [alerts, setAlerts] = useState<Alert[]>([])
+  const [filterPatientName, setFilterPatientName] = useState<string | null>(null)
   const [notesMap, setNotesMap] = useState<Record<string, Note>>({})
   const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
@@ -47,7 +51,23 @@ export default function AlertsPage() {
       if (age < 1800000) { // 30 minutes
         console.log('Loading alerts from localStorage cache');
         const data = JSON.parse(cachedAlerts);
-        const cachedAlertsData = data.alerts || [];
+        let cachedAlertsData = data.alerts || [];
+        
+        // Apply patient filter if present
+        if (filterPatientId) {
+          cachedAlertsData = cachedAlertsData.filter((alert: Alert) => alert.patient_id === filterPatientId);
+          
+          // Get patient name from first alert if available
+          if (cachedAlertsData.length > 0 && cachedAlertsData[0].patient_name) {
+            setFilterPatientName(cachedAlertsData[0].patient_name)
+          } else {
+            // Try to fetch patient name from API
+            fetchPatientName(filterPatientId)
+          }
+        } else {
+          setFilterPatientName(null)
+        }
+        
         setAlerts(cachedAlertsData);
         setLoading(false);
         // Fetch notes for cached alerts
@@ -59,7 +79,25 @@ export default function AlertsPage() {
     }
     
     fetchAlerts(true); // Pass true to show loading state
-  }, [])
+  }, [filterPatientId])
+
+  const fetchPatientName = async (patientId: string) => {
+    try {
+      const res = await fetch(`/api/patients/${patientId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      
+      if (res.ok) {
+        const data = await res.json()
+        if (data.patient?.name) {
+          setFilterPatientName(data.patient.name)
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching patient name:', err)
+    }
+  }
 
   const fetchNotesForAlerts = async (alertsData: Alert[]) => {
     // Fetch all unique note IDs from alerts
@@ -122,7 +160,24 @@ export default function AlertsPage() {
       
       const data = await res.json()
       console.log('Alerts API response:', data)
-      const alertsData = data.alerts || []
+      let alertsData = data.alerts || []
+      
+      // Filter by patient if query parameter is present
+      if (filterPatientId) {
+        alertsData = alertsData.filter((alert: Alert) => alert.patient_id === filterPatientId)
+        console.log(`Filtered to ${alertsData.length} alerts for patient ${filterPatientId}`)
+        
+        // Get patient name from first alert if available
+        if (alertsData.length > 0 && alertsData[0].patient_name) {
+          setFilterPatientName(alertsData[0].patient_name)
+        } else {
+          // Try to fetch patient name from API
+          fetchPatientName(filterPatientId)
+        }
+      } else {
+        setFilterPatientName(null)
+      }
+      
       console.log(`Found ${alertsData.length} alerts`)
       setAlerts(alertsData)
       
@@ -218,11 +273,32 @@ export default function AlertsPage() {
           </div>
         </div>
 
-        <div className="card">
+          <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '600', color: '#212121' }}>
-              Clinical Decision Support Alerts
-            </h2>
+            <div>
+              <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '600', color: '#212121' }}>
+                Clinical Decision Support Alerts
+                {filterPatientId && (
+                  <span style={{ fontSize: '16px', fontWeight: '400', color: '#757575', marginLeft: '12px' }}>
+                    (Filtered: {filterPatientName ? `${filterPatientName} (${filterPatientId})` : filterPatientId})
+                  </span>
+                )}
+              </h2>
+              {filterPatientId && (
+                <Link 
+                  href="/alerts" 
+                  style={{ 
+                    fontSize: '12px', 
+                    color: '#0066cc', 
+                    textDecoration: 'none',
+                    marginTop: '4px',
+                    display: 'inline-block'
+                  }}
+                >
+                  ← Clear filter
+                </Link>
+              )}
+            </div>
             <div style={{ fontSize: '14px', color: '#757575' }}>
               {alerts.length} {alerts.length === 1 ? 'alert' : 'alerts'} detected
             </div>
