@@ -8,7 +8,6 @@ __pycache__
 venv
 .env
 backend
-api
 server.py
 requirements.txt
 main.py
