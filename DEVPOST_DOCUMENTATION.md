@@ -99,13 +99,16 @@ Each note includes:
 
 ### 🎯 SDG 3: Good Health and Well-being
 
-Care Sync contributes to universal health coverage by:
-- Improving quality of care through accurate communication between providers
-- Enhancing patient safety by detecting unacknowledged deterioration early
-- Supporting healthcare workers by reducing cognitive load
-- Promoting health equity through standardized documentation review
+**Target 3.8:** Achieve universal health coverage, including financial risk protection, access to quality essential health-care services, and access to safe, effective, quality, and affordable essential medicines and vaccines for all.
 
-Also supports **SDG 9 (Industry, Innovation, and Infrastructure)** by demonstrating safe AI integration into healthcare systems.
+**How Care Sync Contributes:**
+
+- **Improves Quality of Care:** By detecting documentation inconsistencies, Care Sync helps ensure accurate communication between care providers, reducing medical errors and improving patient outcomes
+- **Enhances Patient Safety:** Early detection of unacknowledged deterioration, discharge safety conflicts, and treatment plan misalignments prevents adverse events
+- **Supports Healthcare Workers:** Reduces cognitive load on clinicians by automatically flagging potential issues, allowing them to focus on direct patient care
+- **Promotes Health Equity:** By standardizing documentation review across all patients, Care Sync helps ensure consistent quality of care regardless of patient demographics or care team composition
+
+**Additional Alignment:** Care Sync also supports **SDG 9 (Industry, Innovation, and Infrastructure)** by demonstrating how AI can be safely and effectively integrated into healthcare systems to improve infrastructure and service delivery.
 
 ---
 
