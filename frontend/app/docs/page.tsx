@@ -294,6 +294,95 @@ export default function DocsPage() {
             <li style={{ marginBottom: '8px' }}><strong>Change detection:</strong> Only re-analyzes when notes actually change</li>
             <li style={{ marginBottom: '8px' }}><strong>EHR Integration Ready:</strong> Designed to integrate with hospital information systems (Oracle Health/Cerner, Epic, Allscripts, etc.) via HL7 FHIR, API connections, or database interfaces</li>
           </ul>
+
+          {/* LLM Constraints & Anti-Hallucination */}
+          <div style={{ 
+            marginTop: '32px',
+            padding: '24px', 
+            backgroundColor: '#e8f5e9', 
+            borderLeft: '5px solid #4caf50',
+            borderRadius: '8px',
+            border: '1px solid rgba(76, 175, 80, 0.2)'
+          }}>
+            <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '16px', color: '#2e7d32' }}>
+              LLM Constraints & Hallucination Prevention
+            </h3>
+            
+            <div style={{ marginBottom: '20px' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px', color: '#1b5e20' }}>
+                Prompt Engineering & Clinical Guardrails
+              </h4>
+              <p style={{ marginBottom: '12px', fontSize: '14px' }}>
+                The LLM prompt includes strict clinical guardrails to prevent false positives and ensure clinically meaningful alerts:
+              </p>
+              <ul style={{ marginLeft: '24px', marginBottom: '12px', fontSize: '14px' }}>
+                <li style={{ marginBottom: '8px' }}><strong>Explicit exclusion rules:</strong> Do NOT flag normal progression over time (e.g., room air in ED → oxygen later is progression, not drift)</li>
+                <li style={{ marginBottom: '8px' }}><strong>Non-exclusive plan handling:</strong> Do NOT flag routine care plans (NPO, IVF, antibiotics, monitoring) as contradictions unless they conflict with discharge plans or improvement claims</li>
+                <li style={{ marginBottom: '8px' }}><strong>Contradiction definition:</strong> Requires mutually incompatible claims about CURRENT state/plan, not just different wording</li>
+                <li style={{ marginBottom: '8px' }}><strong>Prefer fewer, higher-quality alerts:</strong> If uncertain, output fewer alerts rather than risk false positives</li>
+                <li style={{ marginBottom: '8px' }}><strong>Structured alert types:</strong> Only allows specific, predefined alert types (plan_communication_drift, discharge_safety_conflict, unacknowledged_deterioration, etc.)</li>
+              </ul>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px', color: '#1b5e20' }}>
+                Structured Output & Note ID Validation
+              </h4>
+              <p style={{ marginBottom: '12px', fontSize: '14px' }}>
+                To prevent hallucination of note IDs and ensure accuracy:
+              </p>
+              <ul style={{ marginLeft: '24px', marginBottom: '12px', fontSize: '14px' }}>
+                <li style={{ marginBottom: '8px' }}><strong>Real note IDs in prompt:</strong> Notes are formatted with actual note IDs in brackets (e.g., "Note 1 [DX-401-n-001]") so the LLM can cite exact identifiers</li>
+                <li style={{ marginBottom: '8px' }}><strong>JSON response format:</strong> Uses <code style={{ backgroundColor: '#f5f5f5', padding: '2px 6px', borderRadius: '3px', fontSize: '12px' }}>response_format: {'{'} type: 'json_object' {'}'}</code> to enforce structured output</li>
+                <li style={{ marginBottom: '8px' }}><strong>Note ID correction:</strong> Post-processing automatically corrects common LLM mistakes (e.g., "CX-401-n-003" → "DX-401-n-003") by extracting the correct patient ID prefix from actual data</li>
+                <li style={{ marginBottom: '8px' }}><strong>Strict parsing:</strong> Only accepts <code style={{ backgroundColor: '#f5f5f5', padding: '2px 6px', borderRadius: '3px', fontSize: '12px' }}>{'{'} "alerts": [...] {'}'}</code> format; treats other formats as failure</li>
+              </ul>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px', color: '#1b5e20' }}>
+                Quote Validation & Source Verification
+              </h4>
+              <p style={{ marginBottom: '12px', fontSize: '14px' }}>
+                Every alert includes verbatim source quotes that are validated for accuracy:
+              </p>
+              <ul style={{ marginLeft: '24px', marginBottom: '12px', fontSize: '14px' }}>
+                <li style={{ marginBottom: '8px' }}><strong>Verbatim quote requirement:</strong> The prompt explicitly requires verbatim substrings from note text, not paraphrasing</li>
+                <li style={{ marginBottom: '8px' }}><strong>Automatic quote validation:</strong> Post-processing checks if each <code style={{ backgroundColor: '#f5f5f5', padding: '2px 6px', borderRadius: '3px', fontSize: '12px' }}>source_quote</code> is a verbatim substring of the actual note text</li>
+                <li style={{ marginBottom: '8px' }}><strong>Quote correction:</strong> If a quote doesn't match, the system attempts to find the actual sentence in the note and replace it automatically</li>
+                <li style={{ marginBottom: '8px' }}><strong>Quality gate:</strong> If the LLM cannot quote exact text for each side of a conflict, the alert is not created</li>
+              </ul>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px', color: '#1b5e20' }}>
+                Post-Processing Filters
+              </h4>
+              <p style={{ marginBottom: '12px', fontSize: '14px' }}>
+                Multiple layers of post-processing filters suppress false positives:
+              </p>
+              <ul style={{ marginLeft: '24px', marginBottom: '12px', fontSize: '14px' }}>
+                <li style={{ marginBottom: '8px' }}><strong>Non-exclusive plan filter:</strong> Suppresses alerts where routine plans (NPO, IVF, monitor) conflict with patient status unless there's also a discharge plan, improvement claim, or vital instability</li>
+                <li style={{ marginBottom: '8px' }}><strong>Discharge safety gate:</strong> Only emits "discharge_safety_conflict" alerts when there's an explicit discharge/readiness claim in source quotes</li>
+                <li style={{ marginBottom: '8px' }}><strong>NPO conflict filter:</strong> Suppresses NPO conflicts unless there's an explicit opposing diet order or eating statement</li>
+                <li style={{ marginBottom: '8px' }}><strong>False positive detection:</strong> Suppresses alerts when later notes quantitatively confirm earlier qualitative improvement (e.g., "pain improved" → "pain 2/10" is consistent, not contradictory)</li>
+                <li style={{ marginBottom: '8px' }}><strong>Vital sign drift window:</strong> Enforces 4-hour default window for vital sign comparisons (6-hour max with continuous monitoring context)</li>
+                <li style={{ marginBottom: '8px' }}><strong>Severity validation:</strong> Adjusts alert severity based on objective clinical criteria (e.g., CRITICAL requires objective instability like SpO2 &lt; 88, HR &gt; 120, SBP &lt; 90)</li>
+              </ul>
+            </div>
+
+            <div style={{ 
+              padding: '16px', 
+              backgroundColor: '#ffffff', 
+              borderRadius: '6px',
+              border: '1px solid rgba(76, 175, 80, 0.3)',
+              marginTop: '16px'
+            }}>
+              <p style={{ fontSize: '14px', margin: 0, fontWeight: '500', color: '#1b5e20' }}>
+                <strong>Result:</strong> These multi-layer constraints ensure that Care Sync generates only clinically meaningful, evidence-based alerts with verifiable source quotes, preventing hallucination and false positives while maintaining high sensitivity for true safety-relevant contradictions.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
