@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { API_URL } from '@/lib/api'
+import { API_URL } from '../../lib/api'
 
 interface Alert {
   alert_id: string
@@ -47,8 +47,11 @@ export default function AlertsPage() {
       if (age < 1800000) { // 30 minutes
         console.log('Loading alerts from localStorage cache');
         const data = JSON.parse(cachedAlerts);
-        setAlerts(data.alerts || []);
+        const cachedAlertsData = data.alerts || [];
+        setAlerts(cachedAlertsData);
         setLoading(false);
+        // Fetch notes for cached alerts
+        fetchNotesForAlerts(cachedAlertsData);
         // Still fetch in background to update cache (without showing loading)
         fetchAlerts(false); // Pass false to skip setting loading state
         return;
@@ -57,6 +60,48 @@ export default function AlertsPage() {
     
     fetchAlerts(true); // Pass true to show loading state
   }, [])
+
+  const fetchNotesForAlerts = async (alertsData: Alert[]) => {
+    // Fetch all unique note IDs from alerts
+    const allNoteIds = new Set<string>()
+    alertsData.forEach((alert: Alert) => {
+      alert.source_note_ids?.forEach(id => allNoteIds.add(id))
+      alert.conflicting_facts?.forEach((cf: any) => {
+        if (cf.note_id) allNoteIds.add(cf.note_id)
+      })
+    })
+    
+    // Fetch notes by IDs
+    if (allNoteIds.size > 0) {
+      try {
+        console.log(`Fetching ${allNoteIds.size} notes:`, Array.from(allNoteIds))
+        const notesRes = await fetch('/api/notes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ note_ids: Array.from(allNoteIds) })
+        })
+        
+        if (notesRes.ok) {
+          const notesData = await notesRes.json()
+          console.log(`Received ${notesData.notes?.length || 0} notes from API`)
+          const notesDict: Record<string, Note> = {}
+          notesData.notes?.forEach((note: Note) => {
+            notesDict[note.note_id] = note
+          })
+          console.log(`Notes map contains ${Object.keys(notesDict).length} notes`)
+          setNotesMap(notesDict)
+        } else {
+          console.error('Failed to fetch notes:', notesRes.status, notesRes.statusText)
+          const errorText = await notesRes.text()
+          console.error('Error response:', errorText)
+        }
+      } catch (notesErr) {
+        console.error('Error fetching notes:', notesErr)
+      }
+    } else {
+      console.log('No note IDs found in alerts')
+    }
+  }
 
   const fetchAlerts = async (showLoading: boolean = true) => {
     try {
@@ -85,36 +130,8 @@ export default function AlertsPage() {
       localStorage.setItem('alerts_cache', JSON.stringify(data));
       localStorage.setItem('alerts_cache_timestamp', Date.now().toString());
       
-      // Fetch all unique note IDs from alerts
-      const allNoteIds = new Set<string>()
-      alertsData.forEach((alert: Alert) => {
-        alert.source_note_ids?.forEach(id => allNoteIds.add(id))
-        alert.conflicting_facts?.forEach((cf: any) => {
-          if (cf.note_id) allNoteIds.add(cf.note_id)
-        })
-      })
-      
-      // Fetch notes by IDs
-      if (allNoteIds.size > 0) {
-        try {
-          const notesRes = await fetch('/api/notes', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ note_ids: Array.from(allNoteIds) })
-          })
-          
-          if (notesRes.ok) {
-            const notesData = await notesRes.json()
-            const notesDict: Record<string, Note> = {}
-            notesData.notes?.forEach((note: Note) => {
-              notesDict[note.note_id] = note
-            })
-            setNotesMap(notesDict)
-          }
-        } catch (notesErr) {
-          console.warn('Could not fetch notes:', notesErr)
-        }
-      }
+      // Fetch notes for the alerts
+      fetchNotesForAlerts(alertsData)
       
       if (data.warning) {
         console.warn('⚠️', data.warning)

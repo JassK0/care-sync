@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { loadNotes, Patient } from '@/lib/utils';
+import { loadNotes, Patient } from '../../../lib/utils';
 
 // Enable caching for this route
 export const revalidate = 3600; // Revalidate every hour

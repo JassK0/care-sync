@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { loadNotes, getNotesHash } from '@/lib/utils';
-import { LLMDriftDetectionService } from '@/lib/services/llm-drift-detection';
+import { loadNotes, getNotesHash } from '../../../lib/utils';
+import { LLMDriftDetectionService } from '../../../lib/services/llm-drift-detection';
 
 // Enable caching for this route
 export const revalidate = 1800; // Revalidate every 30 minutes

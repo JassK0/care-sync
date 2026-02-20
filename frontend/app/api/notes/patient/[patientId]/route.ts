@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { loadNotes } from '@/lib/utils';
+import { loadNotes } from '../../../../../lib/utils';
 
 export async function GET(
   request: Request,

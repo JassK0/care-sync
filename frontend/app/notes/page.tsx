@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import axios from 'axios'
-import { API_ENDPOINTS } from '@/lib/api'
+import { API_ENDPOINTS } from '../../lib/api'
 
 interface Note {
   note_id: string

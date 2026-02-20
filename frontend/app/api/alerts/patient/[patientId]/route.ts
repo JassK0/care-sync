@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { loadNotes, getNotesHash } from '@/lib/utils';
-import { LLMDriftDetectionService } from '@/lib/services/llm-drift-detection';
+import { loadNotes, getNotesHash } from '../../../../../lib/utils';
+import { LLMDriftDetectionService } from '../../../../../lib/services/llm-drift-detection';
 
 // Simple in-memory cache for patient alerts (resets on each cold start)
 const patientAlertsCache: Record<string, { data: any; timestamp: number; notesHash: string }> = {};

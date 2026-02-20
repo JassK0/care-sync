@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import axios from 'axios'
-import { API_ENDPOINTS } from '@/lib/api'
+import { API_ENDPOINTS } from '../../../lib/api'
 
 interface Note {
   note_id: string
